@@ -20,12 +20,12 @@ GCP Load Balancing offers the following features:
 * Global load balancing for when your applications are available across the world
 * High availability & reducancy which means that if a component(e.g virtual instance) fails, it is automatically restarted or replaced.
 
-The  HTTP Load Balancer can manually be configured and provisioned via Google Console. We, however, want to take advantage of key benefits that IaC (Terraform) provides with respects to provisioning and maintaining cloud infrastructure. We are essentially applying the same principles around developing software applications to infrastructure definition and provisioning.  These benefits include :
+The  HTTP Load Balancer can manually be configured and provisioned via Google Console. We, however, want to take advantage of key benefits that IaC (e.g Terraform) provides with respects to provisioning and maintaining cloud infrastructure. We are essentially applying the same principles around developing software applications to infrastructure definition and provisioning.  These benefits include :
 * Repeatability / Speed - Reliaby rebuild any resource of infrastructure reducing risk.
 * Reuse - Code once and reuse many times (e.g Terraform modules)
 * Documentation - Code/comments serves to document infrastructure.
 * Version Control - Provide history of changes & traceability
-* Validation - Test code with effective automated testing
+* Validation - Allows for effective testing of components individually or entire system to support specific workflow.
 
 
 <b>Prerequisites / Setup</b>
@@ -69,7 +69,7 @@ The diagram below provides the compoments that are used to build out and test yo
 
 ![alt text][logo]
 
-[logo]: https://raw.githubusercontent.com/KawiNeal/dynamic_block/master/HttpLoadBalancer.png "HTTP Load Balancer"
+[logo]: https://raw.githubusercontent.com/KawiNeal/http-loadbalancer/master/images/Architecture_Overview.png?token=ABCG5KI55YJ7THFYF7WQELK7URURW "HTTP Load Balancer"
 
 
 

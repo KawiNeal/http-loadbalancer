@@ -92,7 +92,7 @@ module "autoscaler" {
 
 # Health check - Use by Load Balancer
 module "healthcheck" {
-  source = "../compute/health_check"
+  source = "../networkservices/health_check"
 
   #Inputs
   healthcheck_name    = var.healthcheck_name
@@ -190,7 +190,5 @@ module "dev_test" {
   user              = var.user
   timeout           = var.timeout
   stress_vm_key       = var.stress_vm_key
-
-
 
 }
