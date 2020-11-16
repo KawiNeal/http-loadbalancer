@@ -2,6 +2,11 @@
 
 # Terraform version
 terraform {
+  required_providers {
+    google = {
+      source = "hashicorp/google"
+    }
+  }
   required_version = ">= 0.13"
 }
 
@@ -13,7 +18,8 @@ provider "google" {
 }
 
 
-#
+# Module uses public module registry
+# to create network/subnet
 module "network_subnet" {
 
   source = "../network/network_subnet"
