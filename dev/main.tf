@@ -7,7 +7,7 @@ terraform {
 
 # Use google provider
 provider "google" {
-  project = var.project_id
+  project     = var.project_id
   version     = "~> 3.46.0"
   credentials = file(var.gcp_auth_file)
 }
@@ -70,8 +70,8 @@ module "region_instance_group_mgr" {
   group_mgr_names    = var.group_mgr_names
   group_mgr_regions  = var.group_mgr_regions
   instance_templates = module.instancetemplate.templates
-  target_size        = var.target_size
-  depends_on         = [module.instancetemplate]
+  named_port         = var.named_port
+  named_port_number  = var.named_port_number
 
 }
 
@@ -85,8 +85,6 @@ module "autoscaler" {
   autoscaler_max_replicas = var.autoscaler_max_replicas
   autoscaler_cooldown     = var.autoscaler_cooldown
   autoscaler_target_util  = var.autoscaler_target_util
-
-  depends_on = [module.region_instance_group_mgr]
 
 }
 
@@ -118,7 +116,6 @@ module "backend_service" {
   instance_group_mrgs  = module.region_instance_group_mgr.instance_group_mgrs
   backends             = var.backends
 
-  depends_on = [module.region_instance_group_mgr, module.healthcheck]
 }
 
 # URL map for http load balancer
@@ -129,8 +126,6 @@ module "url_map" {
   urlmap_name           = var.urlmap_name
   urlmap_project        = var.project_id
   urlmap_defaultservice = module.backend_service.id
-
-  depends_on = [module.backend_service]
 }
 
 # Http Proxy for http load balancer
@@ -141,8 +136,6 @@ module "http_proxy" {
   proxy_name    = var.proxy_name
   proxy_project = var.project_id
   url_map_id    = module.url_map.id
-
-  depends_on = [module.url_map]
 }
 
 # Forwarding rules for http load balancer
@@ -153,19 +146,31 @@ module "fowarding_rule" {
   forwardingrule_project = var.project_id
   forwardingrule_target  = module.http_proxy.id
   forwarding_rules       = var.forwarding_rules
-
-  depends_on = [module.http_proxy]
 }
 
 
+##################
+
+/*
+ Module to test Http LoadBalancer
+ Switching subnet to US subnet or EU subnet 
+ depending on where we want to create Stress test VM.
+*/
+
 # get subnet[1] - europewest1
-data "google_compute_subnetwork" "subnet2" {
+data "google_compute_subnetwork" "eu_subnet" {
   name   = var.vpc_subnets[1].subnet_name
   region = var.vpc_subnets[1].subnet_region
 
   depends_on = [module.network_subnet]
 }
+# get subnet[2] - uswest1
+data "google_compute_subnetwork" "us_subnet" {
+  name   = var.vpc_subnets[2].subnet_name
+  region = var.vpc_subnets[2].subnet_region
 
+  depends_on = [module.network_subnet]
+}
 
 # dev test http loadbalancer
 module "dev_test" {
@@ -178,17 +183,21 @@ module "dev_test" {
   stress_test_vm_machine_type            = var.stress_test_vm_machine_type
   stress_test_tags                       = var.stress_test_tags
   stress_test_vm_metadata_startup_script = var.stress_test_vm_metadata_startup_script
-  stress_test_vm_image                   = var.stress_test_vm_image
 
   stress_test_network = module.network_subnet.network_self_link
-  stress_test_subnet  = data.google_compute_subnetwork.subnet2.self_link
+  stress_test_subnet  = data.google_compute_subnetwork.us_subnet.self_link
 
   forward_rule_name = var.forward_rule_name
+
+  image_family = var.image_family
+  image_project = var.image_project
+
   ip_address_name   = var.ip_address_name
   ip_address_region = var.ip_address_region
   type              = var.type
   user              = var.user
   timeout           = var.timeout
-  stress_vm_key       = var.stress_vm_key
+  stress_vm_key     = var.stress_vm_key
 
+  depends_on = [module.fowarding_rule, module.backend_service]
 }

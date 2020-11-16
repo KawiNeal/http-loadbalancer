@@ -47,8 +47,12 @@ variable "group_mgr_names" {
 variable "group_mgr_regions" {
   type = list(string)
 }
-# Target size
-variable "target_size" {
+# named port
+variable "named_port" {
+  type = string
+}
+# named port number
+variable "named_port_number" {
   type = number
 }
 # Autoscaler
@@ -154,56 +158,3 @@ variable forwarding_rules {
     })
   )
 }
-
-
-####################
-
-
-
-# Cloud router input variables
-# Name of router
-variable cloudrouter_name {
-  type = string
-}
-# Region
-variable cloudrouter_region {
-  type = string
-}
-
-
-#
-# VM_INSTANCE variables
-#
-# vm name
-variable "vm_name" {
-  type = string
-}
-# vm zone
-variable "vm_zone" {
-  type = string
-}
-# vm subnet
-variable "subnet" {
-  type = string
-}
-# vm machine type
-variable "machine_type" {
-  type = string
-}
-# vm associated tags
-variable "tags" {
-  type = list
-}
-# vm disk auto delete flag
-variable "auto_delete" {
-  type = string
-}
-# vm start script
-variable "metadata_startup_script" {
-  type = string
-}
-# boot disk Image for the instance to use
-variable "image" {
-  type = string
-}
-  

@@ -19,17 +19,18 @@ variable stress_test_tags {
 variable stress_test_vm_metadata_startup_script {
   type = string
 }
-# boot disk Image for the instance to use
-variable stress_test_vm_image {
-  type = string
-}
-
-# forwarding rule name - used to obtain 
-# external ip
+# forwarding rule name - used to obtain external ip
 variable forward_rule_name {
   type = string
 }
-
+# vm disk image family
+variable image_family {
+  type = string
+}
+# vm disk image project
+variable image_project {
+  type = string
+}
 # static ip addr name for stress_vm IP
 variable ip_address_name {
   type = string
@@ -38,7 +39,6 @@ variable ip_address_name {
 variable ip_address_region {
   type = string
 }
-
 # remote provisioing - connection type
 variable type {
   type = string
