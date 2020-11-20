@@ -1,48 +1,12 @@
-
-
-# Terraform version
-terraform {
-  required_providers {
-    google = {
-      source = "hashicorp/google"
-    }
-  }
-  required_version = ">= 0.13"
-}
-
-# Use google provider
-provider "google" {
-  project     = var.project_id
-  version     = "~> 3.46.0"
-  credentials = file(var.gcp_auth_file)
-}
-
-
 # Module uses public module registry
 # to create network/subnet
 module "network_subnet" {
-
   source = "../network/network_subnet"
   # VPC Subnet
   project_id  = var.project_id
   vpc         = var.vpc
   vpc_subnets = var.vpc_subnets
 
-}
-
-
-# get network & subnet data for reuse
-data "google_compute_network" "network" {
-  name = var.vpc
-
-  depends_on = [module.network_subnet]
-}
-# get subnet[0] - useast1
-data "google_compute_subnetwork" "subnet" {
-  name   = var.vpc_subnets[0].subnet_name
-  region = var.vpc_subnets[0].subnet_region
-
-  depends_on = [module.network_subnet]
 }
 
 # Firewall rules
@@ -65,8 +29,6 @@ module "instancetemplate" {
 
   depends_on = [module.network_subnet]
 }
-
-
 
 # Instance group manager
 module "region_instance_group_mgr" {
@@ -155,55 +117,32 @@ module "fowarding_rule" {
 }
 
 
-##################
-
-/*
- Module to test Http LoadBalancer
- Switching subnet to US subnet or EU subnet 
- depending on where we want to create Stress test VM.
-*/
-
-# get subnet[1] - europewest1
-data "google_compute_subnetwork" "eu_subnet" {
-  name   = var.vpc_subnets[1].subnet_name
-  region = var.vpc_subnets[1].subnet_region
-
-  depends_on = [module.network_subnet]
-}
-# get subnet[2] - uswest1
-data "google_compute_subnetwork" "us_subnet" {
-  name   = var.vpc_subnets[2].subnet_name
-  region = var.vpc_subnets[2].subnet_region
-
-  depends_on = [module.network_subnet]
-}
-
 # dev test http loadbalancer
-module "dev_test" {
-  source = "../test/dev/stress_test_vm"
+module "test" {
+  source = "../test"
 
   # Inputs
   stress_test_vm_name = var.stress_test_vm_name
+  stress_test_network = module.network_subnet.network_self_link
 
-  stress_test_vm_zone                    = var.stress_test_vm_zone
+  # Use output from network_subnet module to set  location 
+  # of stress_test_vm  : subnet, zone & ip address region
+  # For testing will default to europewest2  zone B per output
+  stress_test_subnet  = module.network_subnet.eu_subnet
+  ip_address_region   = module.network_subnet.eu_ipaddr_region
+  stress_test_vm_zone = join("", [module.network_subnet.eu_ipaddr_region, "-b"])
+
   stress_test_vm_machine_type            = var.stress_test_vm_machine_type
   stress_test_tags                       = var.stress_test_tags
   stress_test_vm_metadata_startup_script = var.stress_test_vm_metadata_startup_script
+  forward_rule_name                      = var.forward_rule_name
+  image_family                           = var.image_family
+  image_project                          = var.image_project
+  ip_address_name                        = var.ip_address_name
+  type                                   = var.type
+  user                                   = var.user
+  timeout                                = var.timeout
+  stress_vm_key                          = var.stress_vm_key
 
-  stress_test_network = module.network_subnet.network_self_link
-  stress_test_subnet  = data.google_compute_subnetwork.us_subnet.self_link
-
-  forward_rule_name = var.forward_rule_name
-
-  image_family = var.image_family
-  image_project = var.image_project
-
-  ip_address_name   = var.ip_address_name
-  ip_address_region = var.ip_address_region
-  type              = var.type
-  user              = var.user
-  timeout           = var.timeout
-  stress_vm_key     = var.stress_vm_key
-
-  depends_on = [module.fowarding_rule, module.backend_service]
+  depends_on = [module.network_subnet, module.fowarding_rule]
 }

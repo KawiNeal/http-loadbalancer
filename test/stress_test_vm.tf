@@ -8,11 +8,19 @@ data "google_compute_global_forwarding_rule" "http" {
 
 }
 
+# image disk for vm
+data "google_compute_image" "vm_image" {
+  family  = var.image_family
+  project = var.image_project
+}
+
+# create static ip address for test_vm
 resource "google_compute_address" "static" {
   name   = var.ip_address_name
   region = var.ip_address_region
 }
 
+# Create test vm with external static ip
 resource "google_compute_instance" "stress_test_vm" {
   name = var.stress_test_vm_name
 
@@ -25,7 +33,7 @@ resource "google_compute_instance" "stress_test_vm" {
 
   boot_disk {
     initialize_params {
-      image = var.stress_test_vm_image
+      image = data.google_compute_image.vm_image.self_link
     }
 
   }
@@ -36,11 +44,13 @@ resource "google_compute_instance" "stress_test_vm" {
     subnetwork = var.stress_test_subnet
 
     access_config {
+      # test_vm static ip address
       nat_ip = google_compute_address.static.address
     }
 
   }
 
+  # SSH to stress_test VM and run siege (900 sec)
   provisioner "remote-exec" {
     connection {
       host        = google_compute_address.static.address
@@ -50,14 +60,22 @@ resource "google_compute_instance" "stress_test_vm" {
       private_key = file(var.stress_vm_key)
     }
 
+    # pause 20 before running siege
     inline = [
-      "siege -c 250 http://${data.google_compute_global_forwarding_rule.http.ip_address} &",
-      "sleep 300"
+      "sleep 20",
+      "siege -c 255 -time 8M http://${data.google_compute_global_forwarding_rule.http.ip_address} &",
+      "sleep 500"
     ]
+
   }
 
+  # On terraform instance - output external IP address siege sending requests.
   provisioner "local-exec" {
     command = "echo ${data.google_compute_global_forwarding_rule.http.ip_address} >> ip_addr_frontend.txt"
   }
+
+
+  # ensure ip addr in place before SSH
+  depends_on = [google_compute_address.static]
 
 }

@@ -4,6 +4,9 @@ variable "group_mgr_names" {}
 variable "group_mgr_regions" {}
 # group manager template
 variable "instance_templates" {}
-# target size - default 0 
-variable "target_size" {}
+
+# named port
+variable "named_port" {}
+# named port number
+variable "named_port_number" {}
 

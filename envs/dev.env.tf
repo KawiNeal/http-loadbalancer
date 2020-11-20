@@ -1,3 +1,30 @@
+# For DEV environment define :
+# Terraform version , required GCP provider & remote backend
+terraform {
+  required_version = ">= 0.13"
+
+  required_providers {
+    google = {
+      source = "hashicorp/google"
+    }
+  }
+
+  backend "gcs" {
+    bucket      = "http-loadbalancer"
+    prefix      = "dev"
+    credentials = "http-loadbalancer.json"
+  }
+}
+# Use google provider
+provider "google" {
+  project     = var.project_id
+  version     = "~> 3.46.0"
+  credentials = file(var.gcp_auth_file)
+}
+
+###########################
+
+
 # GCP authentication file
 variable "gcp_auth_file" {
   type = string
@@ -7,7 +34,6 @@ variable "gcp_auth_file" {
 variable "project_id" {
   type = string
 }
-
 
 ###################
 
@@ -157,4 +183,58 @@ variable forwarding_rules {
     port_range              = string
     })
   )
+}
+
+#################################################
+# Stress Test VM Variables
+#
+#################################################
+# vm name
+variable stress_test_vm_name {
+  type = string
+}
+
+# vm machine type
+variable stress_test_vm_machine_type {
+  type = string
+}
+# tags
+variable stress_test_tags {
+  type = list(string)
+}
+# vm start script
+variable stress_test_vm_metadata_startup_script {
+  type = string
+}
+# forwarding rule name - used to obtain external ip
+variable forward_rule_name {
+  type = string
+}
+# vm disk image family
+variable image_family {
+  type = string
+}
+# vm disk image project
+variable image_project {
+  type = string
+}
+# static ip addr name for stress_vm IP
+variable ip_address_name {
+  type = string
+}
+# remote provisioing - connection type
+variable type {
+  type = string
+}
+# remote provisioning - user
+variable user {
+  type = string
+}
+# remote provisioning - timeout
+variable timeout {
+  type = string
+}
+# remote proprovisioning - private key file
+variable stress_vm_key {
+  type = string
 }

@@ -12,8 +12,11 @@ resource "google_compute_region_instance_group_manager" "appserver" {
     instance_template = var.instance_templates[count.index].self_link
   }
 
-  # Target size
-  target_size = var.target_size
+  named_port {
+    name = var.named_port
+    port = var.named_port_number
+  }
+
 
 }
 

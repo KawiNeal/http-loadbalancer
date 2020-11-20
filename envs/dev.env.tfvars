@@ -10,7 +10,7 @@ vpc = "http-lb"
 vpc_subnets = [
   { subnet_name = "us-east1", subnet_ip = "10.210.0.0/20", subnet_region = "us-east1" },
   { subnet_name = "europe-west1", subnet_ip = "10.214.0.0/20", subnet_region = "europe-west1" },
-  { subnet_name = "us-west1", subnet_ip = "10.218.0.0/20", subnet_region = "us-west1" }
+  { subnet_name = "europe-west2", subnet_ip = "10.218.0.0/20", subnet_region = "europe-west2" }
 ]
 
 
@@ -34,10 +34,10 @@ firewall_rules = [
 # Instance Template variables
 instance_templates = [
   { name                  = "us-east1-template", network = "http-lb", region = "us-east1", subnetwork = "us-east1", template_machine_type = "f1-micro",
-    instancetemplate_tags = ["http-server","http-lb-mig"], source_image = "debian-cloud/debian-9"
+    instancetemplate_tags = ["http-server", "http-lb-mig"], source_image = "debian-cloud/debian-9"
   },
   { name                  = "europe-west1-template", network = "http-lb", region = "europe-west1", subnetwork = "europe-west1", template_machine_type = "f1-micro",
-    instancetemplate_tags = ["http-server","http-lb-mig"], source_image = "debian-cloud/debian-9"
+    instancetemplate_tags = ["http-server", "http-lb-mig"], source_image = "debian-cloud/debian-9"
   }
 ]
 
@@ -87,3 +87,32 @@ forwarding_rules = [
   load_balancing_scheme = "EXTERNAL", port_range = "80" }
 ]
 
+
+#################################################
+# Stress Test VM Variables
+#
+#################################################
+# vm name
+stress_test_vm_name = "stresstest-vm"
+# vm machine type
+stress_test_vm_machine_type = "e2-medium"
+# tags
+stress_test_tags = ["http-lb"]
+# vm start script
+stress_test_vm_metadata_startup_script = "sudo apt-get -y install siege"
+# boot disk Image for the instance to use
+image_family  = "ubuntu-2010"
+image_project = "ubuntu-os-cloud"
+# forwarding rule name - used to obtain 
+# external ip
+forward_rule_name = "http-lb-ipv4"
+# static ip addr name for stress_vm IP
+ip_address_name = "ipv4-address"
+# remote provisioning - connection type
+type = "ssh"
+# remote provisioning - user
+user = "kawi.neal"
+# remote provisioning - timeout
+timeout = "120s"
+# remote provisioning - private key file
+stress_vm_key = "id_rsa"
