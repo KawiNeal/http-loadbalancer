@@ -62,9 +62,9 @@ resource "google_compute_instance" "stress_test_vm" {
 
     # pause 20 before running siege
     inline = [
-      "sleep 20",
-      "siege -c 255 -time 8M http://${data.google_compute_global_forwarding_rule.http.ip_address} &",
-      "sleep 500"
+      "sleep 360",
+      "siege -c 255 -t580 http://${data.google_compute_global_forwarding_rule.http.ip_address} &",
+      "sleep 600"
     ]
 
   }

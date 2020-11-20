@@ -10,9 +10,9 @@ terraform {
   }
 
   backend "gcs" {
-    bucket      = "http-loadbalancer"
+    bucket      = "http-loadbalancer-temp"
     prefix      = "dev"
-    credentials = "http-loadbalancer.json"
+    credentials = "http-loadbalancer-copy-3a4996aec9f6.json"
   }
 }
 # Use google provider

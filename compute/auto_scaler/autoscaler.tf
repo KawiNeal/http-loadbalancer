@@ -13,7 +13,7 @@ resource "google_compute_region_autoscaler" "autoscaler" {
     max_replicas    = var.autoscaler_max_replicas
     cooldown_period = var.autoscaler_cooldown
 
-    load_balancing_utilization {
+    cpu_utilization {
       target = var.autoscaler_target_util
     }
   }
