@@ -233,9 +233,6 @@ The <code>dev.env.tf</code> has all the variables associated with the DEV config
 <u><b><code>dev.env.tf</code></b></u>
 <script src="https://gist.github.com/KawiNeal/6f0dbe46045cfb444d66646bbe6c59fd.js"></script>
 
-{% gist https://gist.github.com/KawiNeal/6f0dbe46045cfb444d66646bbe6c59fd.js %}
-
-
 The <span style="color: #ff0000">terraform</span> block sets which provider to retrieve from the Terraform Registry. Given that this is for GCP infrastructure we need to use the google provider source ("hashicorp/google"). Within the <span style="color: #ff0000">terraform</span> block the <code>'required_version'</code> sets a version of Terraform to use in your configuration when the configuration is initialized.  The <code>'required_version'</code> takes a  [version constraint string](https://www.terraform.io/docs/configuration/version-constraints.html) which ensures that a range of acceptable versions can be used. In our project we are specifying that any version that is greater than or equal to 0.13.
 
 The <span style="color: #ff0000">provider</span> block sets which provider to retrieve from the Terraform Registry. [Providers](https://www.terraform.io/docs/configuration/providers.html) are essentially plug-ins that give the Terraform configuration access to a set of resource types per each provider. Note that multiple providers can be specified in one configuration. You can also define multiple configurations for the same provider and select the provider to use within each module or by resource. The <span style="color: #ff0000">provider</span> block sets the version, project & GCP credentials to allow for access  to a specific project within GCP. The provider uses  variables that are declared and defined in <code>dev.env.tf</code> and <code>dev.env.tfvars</code>. 
