@@ -1,7 +1,0 @@
-**/plugins
-**/.terraform
-*.json
-*.log
-*vm_key*
-*.png
-
