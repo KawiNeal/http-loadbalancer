@@ -1,6 +1,5 @@
-## <b>Article Goal</b>
 
-The primary goal of this article is to  :
+The primary goal of this readMe is to  :
 
 * Describe configuration & infrastructure build out and testing of Google Cloud Platform (GCP) HTTP Load Balancer using [Hashicorp Terraform](https://www.terraform.io/), an open source "Infrastructure As Code" (IaC) tool.   
 
@@ -90,50 +89,6 @@ The net result of the above steps should result in two files (service account JS
 ## <b>Getting Started with Terraform on GCP </b>
  
 ***
-
-## <b>Terraform Basics</b>
-
-The  HTTP Load Balancer can manually be configured and provisioned via Google Console. We, however, want to take advantage of key benefits that IaC (e.g Terraform) provides with respects to provisioning and maintaining cloud infrastructure. We are essentially applying the same principles around developing software applications to infrastructure definition and provisioning.  These benefits include :<BR>
-* <b>Reuse & Efficiency </b> -  Reliaby rebuild any resource of infrastructure reducing risk. With IaC, once you have created code to set up one environment(e.g DEV), it can be easily configured to replicate another environment (QA/PRPD). Code once and reuse many times (e.g Terraform modules)<BR>
-* <b>Version Control & Collaboration</b> - Provide history of changes & traceability of infrastructure when your infrastructure is managed via code. Allows for internal teams to share code between and applies policies to manage infrastructure as it would apply to code.<BR>
-* <b>Validation</b> - Allows for effective testing of components individually or entire systems to support specific workflow. <BR>
-* <b>Documentation</b> - Code/comments serves to document infrastructure.<BR>
-
-
-Terraform is an IaC tool for provisioning, updating and managing infrastructure via Hashicorp Configuration Language(HCL). HCL is a declarative language where you specify(declare) the end state and terraform executes a plan to build out that infrastructure. Using providers plug-ins Terraform supports multiple cloud environments  (AWS, Google, Azure & many more). The HCL language & core concepts are applicable to all providers and do not change per provider.  
-
-### <b>Introduction to Hashicorp Terraform</b> <BR>
-Below is an excellent overview of Terraform.
-<BR>
-[![Introduction to HashiCorp Terraform with Armon Dadgar](http://i3.ytimg.com/vi/h970ZBgKINg/hqdefault.jpg)](http://www.youtube.com/watch?v=h970ZBgKINg)
-
-The Terraform lifecycle/workflow consist of :
-
-<b>INIT</b> - Terraform initializes the working directory containing the configuration files and installs all the required plug-ins that are referenced in configuration files. 
-
-<b>PLAN</b> -  Stage where Terraform determines what needs to be created, updated, or destroyed to move from the real/current state of the infrastructure to the desired state. Plan run will result in an update of Terraform state to reflect the intended state.  
-
-<b>APPLY</b> - Terraform apply executes that the generated plan to apply the changes in order to move infrastructure  resources to the desired state.
-
-<b>DESTROY</b> - Terraform destroy is used to remove/delete <b>only</b> Terraform managed resources. 
-
-![alt text](https://storage.googleapis.com/http-loadbalancer/images/terraform_Workflow.png "Terraform Workflow")
-<BR><BR>
-
-Below are some key terms used in Terraform that will touch upon are part of this article. 
-
-<b>Provider:</b> It is a plugin to interact with APIs of public cloud providers (GCP, AWS, Azure) in order to access & create Terraform managed resources.
-
-<b>Variables:</b> Also used as input-variables, it is a key-value pair used by Terraform modules to allow customization. Instead of using hard-coded strings in your resource definition/module you can seperate the values out into data files(vars) and reference
-via variables.
-
-<b>State:</b> It consists of cached information about the infrastructure managed by Terraform and the related configurations.
-
-<b>Modules:</b> Reusable  container for one or more resources that are used together. Modules have defined input variables which are used to create/update resources and allow for defined output variables that other resources or modules can use.
-
-<b>Data Source:</b> It is implemented by providers to return reference on resources within infrastructure to Terraform.
-
-<BR>
 
 ## <b>Install Terraform </b>
 
@@ -228,78 +183,6 @@ The <b><code>envs</code></b> folder is where the Http Load Balancer Terraform pr
 │   │   id_rsa                  * copied into project (SSH key)
 │   │   main.tf       		     -----> terraform, GCP provider & modules 
 </code></pre></div>
-The <code>dev.env.tf</code> has all the variables associated with the DEV configuration including Terraform block to define require version and cloud provider (GCP).  Took the approach of isolating all variables for a specific environment into one file.
-
-<u><b><code>dev.env.tf</code></b></u>
-<script src="https://gist.github.com/KawiNeal/6f0dbe46045cfb444d66646bbe6c59fd.js"></script>
-
-The <span style="color: #ff0000">terraform</span> block sets which provider to retrieve from the Terraform Registry. Given that this is for GCP infrastructure we need to use the google provider source ("hashicorp/google"). Within the <span style="color: #ff0000">terraform</span> block the <code>'required_version'</code> sets a version of Terraform to use in your configuration when the configuration is initialized.  The <code>'required_version'</code> takes a  [version constraint string](https://www.terraform.io/docs/configuration/version-constraints.html) which ensures that a range of acceptable versions can be used. In our project we are specifying that any version that is greater than or equal to 0.13.
-
-The <span style="color: #ff0000">provider</span> block sets which provider to retrieve from the Terraform Registry. [Providers](https://www.terraform.io/docs/configuration/providers.html) are essentially plug-ins that give the Terraform configuration access to a set of resource types per each provider. Note that multiple providers can be specified in one configuration. You can also define multiple configurations for the same provider and select the provider to use within each module or by resource. The <span style="color: #ff0000">provider</span> block sets the version, project & GCP credentials to allow for access  to a specific project within GCP. The provider uses  variables that are declared and defined in <code>dev.env.tf</code> and <code>dev.env.tfvars</code>. 
-
-The <span style="color: #da70d6">backend</span> block enables storing the infrastructure state in a remote data store. Remote backends are highly recommended when working in teams to modify same infrastructure or parts of the same infrastructure. Advantages are with collaboration, security (sensitive info) and remote operations. The backend we have defined is GCP ("gcs") using the storage bucket we defined as part of the setup. Access to the storage bucket is obtained with a service account key(JSON).  One thing to note, you can not use variables within the definition of backend, all input must be hard-coded.  You can see that difference between the definition of the <span style="color: #ff0000">provider</span> block and the <span style="color: #da70d6">backend</span> block.<BR><BR>
-The variables after the <span style="color: #da70d6">backend</span> block defines that variable types that are needed to be passed to all the modules. 
-
-<u><b><code>dev.env.tfvars</code></b></u>
-<script src="https://gist.github.com/KawiNeal/73171999e47eb57246b65f438dbd4902.js"></script>
-
-{% gist https://gist.github.com/KawiNeal/73171999e47eb57246b65f438dbd4902.js %}
-
-Hard-coding values in Terraform configuration is not recommended. The use of variables is to ensure configuration can be easily maintain, reused and also serve as parameters to Terraform modules.  Variables declarations are put defined in variables TF file and their associated values assignments are put into TFVARS file. The variables in these files represent sets of inputs to modules for this infrastructure. 
-
-For example, the VPC Network and Subnets input from <code>dev.env.tfvars</code> is defined as :
-
-<script src="https://gist.github.com/KawiNeal/182b0a8c7b2acc88c3280d3dba362afd.js"></script>
-
-{% gist https://gist.github.com/KawiNeal/182b0a8c7b2acc88c3280d3dba362afd.js %}
-
-
-The inputs (<code>project_id, vpc,vpc_subnets</code>) are passed to the network_subnet module within the network group folder(../network/network_subnet).
-<script src="https://gist.github.com/KawiNeal/e7ddb523615e97ce01bd4e6f4f8f187d.js"></script>
-
-{% gist https://gist.github.com/KawiNeal/e7ddb523615e97ce01bd4e6f4f8f187d.js %}
-
-## Modules
-
-The <code>network_subnet</code> module illustrates how a module can be used to call/re-use other modules.  The <code>network_subnet</code> module calls "version 2.5.0" of an available & verified [network module](https://registry.terraform.io/namespaces/terraform-google-modules) that creates network/subnets using required input parameters. There is a [Terraform registry of modules](https://registry.terraform.io/) that can be used to create resources for multiple providers (AWS, GCP, Azure, etc). <BR>
-<u><b><code>Module network_vpc</code></b></u>
-<script src="https://gist.github.com/KawiNeal/b6bcbc1969970a917fa6af39d68559aa.js"></script>
-{% gist https://gist.github.com/KawiNeal/b6bcbc1969970a917fa6af39d68559aa.js %}
-Modules not only allow you to re-use configuration but also makes it easier to organize your configuration into clear and logical components of your infrastructure. Proper definition and grouping of modules will allow for easier navigation & understanding of larger cloud infrastructures that could exist across multiple cloud providers and have hundreds of resources.<BR>
-Similar to web services, modules should follow an "input-output" pattern.  We want to have a clear contract that defines our inputs to the module and outputs from the module.  These reusable pieces of components(modules) can then be logically glued together to produce a functional infrastructure.
-
-Example of two <code>network services</code> modules below : 
-<div class="highlight"><pre class="highlight plaintext">
-<code>
-...
-...
-│   │───target_proxy
-│   │     ├───input.tf
-│   │     ├───output.tf
-│   │     └───target_proxy.tf
-│   │───url_map
-│   │     ├───input.tf
-│   │     ├───output.tf
-│   │     └───url_map.tf
-...
-...
-</code></pre></div>
-Output values defined in <code>output.tf</code> are the return values of the Terraform module that can be used to pass resource attributes/references to the parent module. Other modules in the root module can use these attributes as input, creating an <b>implicit</b> dependency.  In the example above, the <code>target_proxy</code> has a dependency on an url map. The output from <code>url_map</code> child-module to the root module is <code>url_map_id</code>, which is passed as an input to the <code>target_proxy</code> child-module.
-<u><b><code>Module url_map output</code></b></u>
-<script src="https://gist.github.com/KawiNeal/e3d1d8cc9f4fe00a410f6bb8f4ed7991.js"></script>
-{% gist https://gist.github.com/KawiNeal/e3d1d8cc9f4fe00a410f6bb8f4ed7991.js %}
-In the root/parent module, outputs from the child module can be referenced and made available as <b>module.MODULE_NAME.OUTPUT_NAME</b>. In case of <code>url_map</code> output it can be referenced as <code>module.url_map.id</code> as shown below from the root module in <code>main.tf</code>.
-<u><b><code>Module http_proxy input</code></b></u>
-<script src="https://gist.github.com/KawiNeal/fab947ab01a6890de4d036e5a6c01e8c.js"></script>
-{% gist https://gist.github.com/KawiNeal/fab947ab01a6890de4d036e5a6c01e8c.js %}
-
-Terraform by default will take into account the implicit dependency as far as the order in which resources are created. In the case of <code>url_map</code> and <code>target_proxy</code> above, the url_map will be created prior <code>target_proxy</code>.
-Terraform also allows for declaring <b>explicit</b> dependencies with the use of <code>depends_on</code>.
-One method of testing the HTTP Load Balancer was to create a virtual instance (<code>stress_test_vm</code>) and drive traffic from that virtual instance to the load balancer.  The load balancer should forward traffic to the region that is closest to the virtual machine's region/location. The (<code>stress_test_vm</code>) is a stand-alone instance that has no implicit dependency on resources/modules defined in the root module. The (<code>stress_test_vm</code>) does require that the resources associated with HTTP Load Balancer be in place in order to forward traffic to it. The <code>depends_on = [module.network_subnet, module.fowarding_rule]</code> sets this explicit dependency. Before creating a test VM we want to ensure that the network/subnets and  externally exposed IP address are in place prior to generating traffic to external IP.
-
-<u><b><code>Module - test</code></b></u>
-<script src="https://gist.github.com/KawiNeal/a2de9a38bde26a9ec0b6da15ec888023.js"></script>
-{% gist https://gist.github.com/KawiNeal/a2de9a38bde26a9ec0b6da15ec888023.js %}
 
 ## Load Balancer & Testing
 
