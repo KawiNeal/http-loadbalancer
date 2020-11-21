@@ -1,8 +1,8 @@
 # PROJECT VARS
 # Project Id 
-project_id = "http-loadbalancer-copy"
+project_id = "http-loadbalancer"
 # GCP authentication file
-gcp_auth_file = "http-loadbalancer-copy-3a4996aec9f6.json"
+gcp_auth_file = "http-loadbalancer.json"
 
 
 # VPC-SUBNET inputs - Creates VPC & subnets
